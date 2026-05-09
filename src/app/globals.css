@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+/* Lock the page to light-mode rendering so iOS/Android auto-darken
+   doesn't recolour our cream surfaces or invert text on devices set
+   to dark mode at the OS level. */
+:root {
+  color-scheme: light;
+}
+
+/* Respect users who've asked the OS to reduce motion — disable
+   non-essential animations and transitions globally. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── KnotBook Design System: "The Digital Heirloom" ─── */
+
+@theme inline {
+  /* Surface & Background */
+  --color-background: #fcf9f2;
+  --color-surface: #fcf9f2;
+  --color-surface-bright: #fcf9f2;
+  --color-surface-dim: #dcdad3;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3ec;
+  --color-surface-container: #f0eee7;
+  --color-surface-container-high: #ebe8e1;
+  --color-surface-container-highest: #e5e2db;
+  --color-surface-variant: #e5e2db;
+  --color-surface-tint: #735c00;
+
+  /* Primary Gold */
+  --color-primary: #735c00;
+  --color-primary-container: #d4af37;
+  --color-primary-fixed: #ffe088;
+  --color-primary-fixed-dim: #e9c349;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #554300;
+  --color-on-primary-fixed: #241a00;
+  --color-on-primary-fixed-variant: #574500;
+  --color-inverse-primary: #e9c349;
+
+  /* Secondary */
+  --color-secondary: #5e5e5e;
+  --color-secondary-container: #e3e2e2;
+  --color-secondary-fixed: #e3e2e2;
+  --color-secondary-fixed-dim: #c7c6c6;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #646464;
+  --color-on-secondary-fixed: #1b1c1c;
+  --color-on-secondary-fixed-variant: #464747;
+
+  /* Tertiary */
+  --color-tertiary: #795900;
+  --color-tertiary-container: #dcac3b;
+  --color-tertiary-fixed: #ffdf9e;
+  --color-tertiary-fixed-dim: #f1bf4c;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #594100;
+  --color-on-tertiary-fixed: #261a00;
+  --color-on-tertiary-fixed-variant: #5b4300;
+
+  /* Error */
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
+
+  /* On Surface */
+  --color-on-background: #1c1c18;
+  --color-on-surface: #1c1c18;
+  --color-on-surface-variant: #4d4635;
+
+  /* Outline */
+  --color-outline: #7f7663;
+  --color-outline-variant: #d0c5af;
+
+  /* Inverse */
+  --color-inverse-surface: #31312c;
+  --color-inverse-on-surface: #f3f0ea;
+
+  /* Font Families */
+  --font-headline: "Newsreader", serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Inter", sans-serif;
+  --font-signature: "Brittany Signature", cursive;
+}
+
+/* ─── Brittany Signature Font ─── */
+@font-face {
+  font-family: "Brittany Signature";
+  src: url("/fonts/BrittanySignature.woff") format("woff");
+  font-display: swap;
+}
+
+/* ─── Custom Utilities ─── */
+.gold-gradient {
+  background: linear-gradient(135deg, #d4af37 0%, #735c00 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.linen-texture {
+  background-color: #fcf9f2;
+}
+
+.linen-overlay {
+  background-image: radial-gradient(circle at 30% 20%, rgba(115, 92, 0, 0.025) 0%, transparent 40%),
+                    radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.glass-header {
+  background: rgba(252, 249, 242, 0.8);
+  backdrop-filter: blur(20px);
+}
+
+.ambient-shadow {
+  box-shadow: 0 30px 60px -12px rgba(77, 70, 53, 0.08);
+}
+
+.ghost-border {
+  border: 1px solid rgba(127, 118, 99, 0.15);
+}
+
+/* ─── Scrollbar ─── */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: rgba(255, 224, 136, 0.3);
+}
+
+/* ─── Base Body ─── */
+body {
+  background-color: #fcf9f2;
+  color: #1c1c18;
+  font-family: "Inter", sans-serif;
+}
+
+/* ─── Animations ─── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.3); }
+  50% { box-shadow: 0 0 20px 5px rgba(212, 175, 55, 0.1); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.7s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.7s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-gold {
+  animation: pulseGold 3s ease-in-out infinite;
+}
+
+/* Stagger delays */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Interactive hover effects */
+.hover-lift {
+  transition: transform 0.4s ease-out, box-shadow 0.4s ease-out;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px -12px rgba(77, 70, 53, 0.12);
+}
+
+.hover-glow {
+  transition: box-shadow 0.4s ease-out;
+}
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+}
+
+/* Smooth page transitions */
+.page-enter {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Default transition timing */
+*, *::before, *::after {
+  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* ─── Cursor Fix ─── */
+a, button, [role="button"], input[type="submit"], input[type="button"],
+label[for], select, .cursor-pointer {
+  cursor: pointer;
+}
+
+/* Prevent layout shift from font loading */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}

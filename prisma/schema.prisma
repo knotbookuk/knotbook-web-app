@@ -1,0 +1,759 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum PlanType {
+  MONTHLY
+  LIFETIME
+  COUPLE_MONTHLY
+  COUPLE_YEARLY
+  PLANNER_BASIC_MONTHLY
+  PLANNER_BASIC_YEARLY
+  PLANNER_ADVANCED_MONTHLY
+  PLANNER_ADVANCED_YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+}
+
+enum CulturalStyle {
+  CLASSIC_BRITISH
+  CLASSIC_ASIAN
+  ARAB
+}
+
+enum UserType {
+  COUPLE
+  PLANNER
+}
+
+enum RsvpStatus {
+  ATTENDING
+  NOT_COMING
+  NO_RESPONSE
+}
+
+enum FamilySide {
+  BRIDE
+  GROOM
+  MUTUAL
+}
+
+enum AllergySeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum BudgetItemStatus {
+  PAID
+  PARTIALLY_PAID
+  DUE
+  OVERDUE
+}
+
+enum VendorStatus {
+  POTENTIAL
+  CONTACTED
+  QUOTE_RECEIVED
+  CONFIRMED
+  DEPOSIT_PAID
+  PAID_IN_FULL
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum OutfitType {
+  OUTFIT
+  JEWELLERY
+  ACCESSORY
+}
+
+enum OutfitStatus {
+  NOT_ORDERED
+  NOT_PAID
+  ORDERED
+  RECEIVED
+  ALTERED
+  READY
+}
+
+enum TaskPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum NotificationType {
+  RSVP_UPDATE
+  PAYMENT_REMINDER
+  TASK_DUE
+  VENDOR_MESSAGE
+  EVENT_REMINDER
+  SYSTEM
+}
+
+enum ExportFormat {
+  PDF
+  CSV
+  EXCEL
+  ZIP
+}
+
+enum ExportType {
+  GUEST_LIST
+  BUDGET_SUMMARY
+  SEATING_PLAN
+  TIMELINE
+  FULL_PACK
+}
+
+enum EmailStatus {
+  SENT
+  FAILED
+  BOUNCED
+}
+
+// ─── User & Auth ─────────────────────────────────────────
+
+model User {
+  id             String             @id @default(cuid())
+  email          String             @unique
+  passwordHash   String
+  name           String
+  role           Role               @default(USER)
+  userType         UserType           @default(COUPLE)
+  activeWeddingId  String?
+  avatarUrl      String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  resetToken       String?   @unique
+  resetTokenExpiry DateTime?
+  notificationPrefs Json     @default("{\"emailRsvp\":true,\"emailPayment\":false,\"emailTasks\":false,\"emailEvents\":false,\"emailBudget\":false,\"smsDayOf\":false,\"smsUrgent\":false}")
+
+  subscription   Subscription?
+  weddings       Wedding[]
+  notifications  Notification[]
+  feedbacks      Feedback[]
+
+  @@index([email])
+}
+
+model Subscription {
+  id                    String             @id @default(cuid())
+  userId                String             @unique
+  plan                  PlanType
+  status                SubscriptionStatus @default(ACTIVE)
+  stripeCustomerId      String?            @unique
+  stripeSubscriptionId  String?            @unique
+  stripePriceId         String?
+  cancelAtPeriodEnd     Boolean            @default(false)
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingHistory        BillingRecord[]
+
+  @@index([stripeCustomerId])
+}
+
+model BillingRecord {
+  id               String       @id @default(cuid())
+  subscriptionId   String
+  amount           Decimal      @db.Decimal(10, 2)
+  currency         String       @default("GBP")
+  description      String
+  stripeInvoiceId  String?
+  paidAt           DateTime
+  createdAt        DateTime     @default(now())
+
+  subscription     Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+}
+
+// ─── Wedding ─────────────────────────────────────────────
+
+model Wedding {
+  id             String        @id @default(cuid())
+  userId         String
+  clientName     String?
+  culturalStyle  CulturalStyle @default(CLASSIC_ASIAN)
+  weddingDate    DateTime?
+  partnerName1   String
+  partnerName2   String
+  totalBudget    Decimal       @db.Decimal(10, 2) @default(0)
+  venue          String?
+  notes          String?
+  budgetAlertsSent Json  @default("[]")
+  budgetAlertThresholds Int[] @default([80, 90, 100])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  events         Event[]
+  guests         Guest[]
+  budgetItems    BudgetItem[]
+  vendors        Vendor[]
+  seatingTables  SeatingTable[]
+  outfits        OutfitItem[]
+  tasks          Task[]
+  checklistItems ChecklistItem[]
+  moodBoardItems      MoodBoardItem[]
+  exports             Export[]
+  menuItems           MenuItem[]
+  menuBeverages       MenuBeverage[]
+  cateringNotes       CateringNote[]
+  beautyProfessionals BeautyProfessional[]
+  beautyInspirations  BeautyInspiration[]
+  sectionNotes        Note[]
+
+  @@index([userId])
+}
+
+// ─── Events / Timeline ──────────────────────────────────
+
+model Event {
+  id              String    @id @default(cuid())
+  weddingId       String
+  name            String
+  description     String?
+  date            DateTime
+  startTime       String?
+  endTime         String?
+  venue           String?
+  address         String?
+  dayLabel        String?
+  sortOrder       Int       @default(0)
+  reminderSentAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  wedding     Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  outfits     OutfitItem[]
+
+  @@index([weddingId])
+  @@index([date])
+}
+
+// ─── Guests ──────────────────────────────────────────────
+
+model Guest {
+  id              String          @id @default(cuid())
+  weddingId       String
+  name            String
+  email           String?
+  rsvpToken String? @unique
+  phone           String?
+  familySide      FamilySide      @default(MUTUAL)
+  rsvpStatus      RsvpStatus      @default(NO_RESPONSE)
+  mealPreference  String?
+  dietaryType     String?
+  allergies       String?
+  allergySeverity AllergySeverity?
+  dietaryNotes    String?
+  plusOne          Boolean          @default(false)
+  plusOneName      String?
+  additionalGuests Int             @default(0)
+  plusOnes         Int              @default(0)
+  notes           String?
+  tableId         String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  wedding         Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  seatingTable    SeatingTable?    @relation(fields: [tableId], references: [id], onDelete: SetNull)
+
+  @@index([weddingId])
+  @@index([rsvpStatus])
+  @@index([tableId])
+}
+
+// ─── Budget ──────────────────────────────────────────────
+
+model BudgetItem {
+  id             String           @id @default(cuid())
+  weddingId      String
+  category       String
+  description    String?
+  estimatedCost  Decimal          @db.Decimal(10, 2) @default(0)
+  actualCost     Decimal          @db.Decimal(10, 2) @default(0)
+  paidAmount     Decimal          @db.Decimal(10, 2) @default(0)
+  dueDate        DateTime?
+  status         BudgetItemStatus @default(DUE)
+  notes          String?
+  sortOrder      Int              @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  wedding        Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+}
+
+// ─── Vendors ─────────────────────────────────────────────
+
+model Vendor {
+  id            String       @id @default(cuid())
+  weddingId     String
+  name          String
+  category      String
+  contactName   String?
+  email         String?
+  phone         String?
+  website       String?
+  quoteAmount   Decimal?     @db.Decimal(10, 2)
+  depositAmount Decimal?     @db.Decimal(10, 2)
+  rating        Int?
+  status        VendorStatus @default(CONTACTED)
+  notes         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  wedding       Wedding      @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  payments      VendorPayment[]
+
+  @@index([weddingId])
+  @@index([category])
+}
+
+model VendorPayment {
+  id              String        @id @default(cuid())
+  vendorId        String
+  amount          Decimal       @db.Decimal(10, 2)
+  description     String?
+  dueDate         DateTime
+  paidDate        DateTime?
+  status          PaymentStatus @default(PENDING)
+  reminderSentAt  DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  vendor      Vendor        @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@index([dueDate])
+}
+
+// ─── Seating ─────────────────────────────────────────────
+
+model SeatingTable {
+  id        String   @id @default(cuid())
+  weddingId String
+  name      String
+  capacity  Int      @default(10)
+  shape     String   @default("ROUND")
+  positionX Float?
+  positionY Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wedding   Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  guests    Guest[]
+
+  @@index([weddingId])
+}
+
+// ─── Outfits & Jewellery ─────────────────────────────────
+
+model OutfitItem {
+  id        String       @id @default(cuid())
+  weddingId String
+  eventId   String?
+  name      String
+  type      OutfitType   @default(OUTFIT)
+  cost      Decimal?     @db.Decimal(10, 2)
+  status    OutfitStatus @default(NOT_ORDERED)
+  link      String?
+  notes     String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  wedding   Wedding      @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  event     Event?       @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([weddingId])
+  @@index([eventId])
+}
+
+// ─── Family Tasks ────────────────────────────────────────
+
+model Task {
+  id              String       @id @default(cuid())
+  weddingId       String
+  title           String
+  description     String?
+  assigneeName    String?
+  dueDate         DateTime?
+  priority        TaskPriority @default(MEDIUM)
+  status          TaskStatus   @default(TODO)
+  category        String?
+  completedAt     DateTime?
+  sortOrder       Int          @default(0)
+  reminderSentAt  DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  wedding      Wedding      @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// ─── Checklists ──────────────────────────────────────────
+
+model ChecklistItem {
+  id          String   @id @default(cuid())
+  weddingId   String
+  title       String
+  description String?
+  category    String?
+  priority    String?
+  dueDate     DateTime?
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  wedding     Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+  @@index([isCompleted])
+}
+
+// ─── Notifications ───────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType @default(SYSTEM)
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// ─── Mood Board ──────────────────────────────────────────
+
+model MoodBoardItem {
+  id        String   @id @default(cuid())
+  weddingId String
+  title     String   @default("")
+  imageUrl  String?
+  category  String?
+  tags      String[] @default([])
+  notes     String?
+  isSaved   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wedding   Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+  @@index([category])
+}
+
+// ─── Exports ─────────────────────────────────────────────
+
+model Export {
+  id        String       @id @default(cuid())
+  weddingId String
+  type      ExportType
+  format    ExportFormat
+  fileName  String
+  fileUrl   String?
+  createdAt DateTime     @default(now())
+
+  wedding   Wedding      @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+}
+
+// ─── Email System ────────────────────────────────────────
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  subjectLine String
+  senderName  String   @default("KnotBook")
+  replyTo     String   @default("")
+  enabled     Boolean  @default(true)
+  variables   Json     @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  logs        EmailLog[]
+
+  @@index([slug])
+}
+
+model EmailLog {
+  id             String        @id @default(cuid())
+  templateSlug   String
+  template       EmailTemplate @relation(fields: [templateSlug], references: [slug])
+  recipientEmail String
+  recipientName  String        @default("")
+  subject        String
+  status         EmailStatus   @default(SENT)
+  error          String?
+  metadata       Json          @default("{}")
+  sentAt         DateTime      @default(now())
+
+  @@index([templateSlug])
+  @@index([sentAt])
+}
+
+// ─── Catering / Menu ─────────────────────────────────────
+
+enum MenuItemCategory {
+  APPETIZER
+  MAIN_COURSE
+  SIDE_DISH
+  DESSERT
+}
+
+enum BeverageCategory {
+  COCKTAIL
+  WINE
+  NON_ALCOHOLIC
+}
+
+model MenuItem {
+  id           String           @id @default(cuid())
+  weddingId    String
+  name         String
+  category     MenuItemCategory
+  description  String?
+  isVegetarian Boolean          @default(false)
+  isVegan      Boolean          @default(false)
+  isGlutenFree Boolean          @default(false)
+  notes        String?
+  sortOrder    Int              @default(0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  wedding      Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+  @@index([category])
+}
+
+model MenuBeverage {
+  id          String           @id @default(cuid())
+  weddingId   String
+  name        String
+  category    BeverageCategory
+  description String?
+  vendor      String?
+  isAlcoholic Boolean          @default(false)
+  notes       String?
+  sortOrder   Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  wedding     Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+  @@index([category])
+}
+
+model CateringNote {
+  id        String   @id @default(cuid())
+  weddingId String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wedding   Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+}
+
+// ─── Beauty (MUA & Hairstylists) ─────────────────────────
+
+enum BeautyProfessionalType {
+  MUA
+  HAIRSTYLIST
+}
+
+model BeautyProfessional {
+  id        String                 @id @default(cuid())
+  weddingId String
+  name      String
+  type      BeautyProfessionalType
+  email     String?
+  phone     String?
+  website   String?
+  instagram String?
+  notes     String?
+  cost      Decimal?               @db.Decimal(10, 2)
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+
+  wedding   Wedding                @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  trials    BeautyTrial[]
+
+  @@index([weddingId])
+  @@index([type])
+}
+
+model BeautyTrial {
+  id             String             @id @default(cuid())
+  professionalId String
+  date           DateTime
+  location       String?
+  notes          String?
+  outcome        String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  professional   BeautyProfessional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  @@index([professionalId])
+}
+
+model BeautyInspiration {
+  id        String   @id @default(cuid())
+  weddingId String
+  imageUrl  String
+  caption   String?
+  category  String?
+  createdAt DateTime @default(now())
+
+  wedding   Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+}
+
+// ─── Notes (generic, section-based) ─────────────────
+
+model Note {
+  id        String   @id @default(cuid())
+  weddingId String
+  section   String   // e.g. "beauty", "catering", "vendors"
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wedding   Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId, section])
+}
+
+// ─── Feedback ────────────────────────────────────────────
+
+model Feedback {
+  id            String   @id @default(cuid())
+  userId        String
+  featureArea   String
+  rating        Int
+  message       String
+  screenshotUrl String?
+  isRead        Boolean  @default(false)
+  adminNotes    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ─── Admin Settings ──────────────────────────────────────
+
+model AdminSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Public Reviews (homepage testimonials) ──────────────
+
+model Review {
+  id        String   @id @default(cuid())
+  name      String
+  location  String?
+  rating    Int      @default(5)
+  quote     String
+  sortOrder Int      @default(0)
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isVisible, sortOrder])
+}
+
+// ─── Promo Codes ─────────────────────────────────────────
+
+model PromoCode {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  discountType  String    @default("PERCENT")
+  discountValue Decimal   @db.Decimal(10, 2)
+  maxUses       Int?
+  currentUses   Int       @default(0)
+  validFrom     DateTime  @default(now())
+  validUntil    DateTime?
+  applicablePlans String[] @default([])
+  createdById   String
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  redemptions   PromoRedemption[]
+
+  @@index([code])
+}
+
+model PromoRedemption {
+  id          String    @id @default(cuid())
+  promoCodeId String
+  userId      String
+  appliedAt   DateTime  @default(now())
+
+  promoCode   PromoCode @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+
+  @@index([promoCodeId])
+  @@index([userId])
+}

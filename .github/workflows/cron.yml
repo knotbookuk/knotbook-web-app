@@ -1,0 +1,67 @@
+# Daily reminder crons for KnotBook.
+#
+# This workflow hits the three reminder endpoints exposed by the Next.js app
+# on Render. Each endpoint reads users' notification preferences and sends
+# emails via Resend.
+#
+# Setup:
+#   1. On Render, set `CRON_SECRET` env var to a long random string.
+#   2. On GitHub, add a repository secret named `CRON_SECRET` with the
+#      SAME value (Settings -> Secrets and variables -> Actions -> New
+#      repository secret). The two MUST match or every request will be
+#      rejected with HTTP 401.
+#
+# Schedule: 07:00 UTC daily.
+#   Winter (GMT): 7:00am UK
+#   Summer (BST): 8:00am UK
+# Picked so reminders land in inboxes before the user's morning starts,
+# in either DST season. GitHub Actions cron is UTC-only and cannot shift
+# automatically with British Summer Time, so a fixed UTC offset is the
+# pragmatic compromise.
+#
+# Manual trigger: GitHub UI -> Actions tab -> "Daily reminders" workflow
+# -> "Run workflow". The admin dashboard inside the app also has
+# per-endpoint trigger buttons that go through the local API.
+#
+# Steps use `continue-on-error: true` so a failure in one endpoint does
+# not prevent the other two from running. `--fail-with-body` makes curl
+# exit non-zero on >=400 responses while still printing the body so the
+# Actions log shows what went wrong.
+
+name: Daily reminders
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vendor payment reminders
+        continue-on-error: true
+        run: |
+          echo "Hitting https://knotbook.co.uk/api/cron/vendor-reminders"
+          curl --fail-with-body -sS \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://knotbook.co.uk/api/cron/vendor-reminders"
+          echo
+
+      - name: Task reminders
+        continue-on-error: true
+        run: |
+          echo "Hitting https://knotbook.co.uk/api/cron/task-reminders"
+          curl --fail-with-body -sS \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://knotbook.co.uk/api/cron/task-reminders"
+          echo
+
+      - name: Event reminders
+        continue-on-error: true
+        run: |
+          echo "Hitting https://knotbook.co.uk/api/cron/event-reminders"
+          curl --fail-with-body -sS \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://knotbook.co.uk/api/cron/event-reminders"
+          echo

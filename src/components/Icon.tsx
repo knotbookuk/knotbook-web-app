@@ -1,0 +1,335 @@
+"use client";
+
+import {
+  Activity,
+  AlertTriangle,
+  ArrowDownUp,
+  ArrowLeft,
+  ArrowRight,
+  Armchair,
+  Award,
+  BadgeCheck,
+  Bell,
+  BookOpen,
+  Bot,
+  Brush,
+  Cake,
+  Calendar,
+  CalendarCheck,
+  CalendarClock,
+  CalendarDays,
+  CalendarX,
+  Camera,
+  Check,
+  CheckCheck,
+  CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Church,
+  Circle,
+  CircleAlert,
+  CircleUserRound,
+  ClipboardClock,
+  ClipboardList,
+  ClipboardX,
+  Clock,
+  CloudOff,
+  CloudUpload,
+  Coffee,
+  ConciergeBell,
+  Copy,
+  CreditCard,
+  CircleHelp,
+  Crown,
+  Diamond,
+  Download,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  FileText,
+  FileUp,
+  Flag,
+  FlaskConical,
+  Flame,
+  Flower2,
+  Gift,
+  Hand,
+  Heart,
+  HeartCrack,
+  Home,
+  Hourglass,
+  ImagePlus,
+  Images,
+  Inbox,
+  Info,
+  KeyRound,
+  Landmark,
+  Languages,
+  LayoutDashboard,
+  LayoutGrid,
+  Leaf,
+  Lightbulb,
+  Link as LinkIcon,
+  ListChecks,
+  Loader,
+  Lock,
+  Minimize2,
+  LogOut,
+  Mail,
+  MapPin,
+  Menu as MenuIcon,
+  MessageSquare,
+  MessageSquareText,
+  MoreVertical,
+  Palette,
+  PartyPopper,
+  Pencil,
+  Phone,
+  PieChart,
+  PiggyBank,
+  Plane,
+  Play,
+  Plus,
+  PoundSterling,
+  RectangleHorizontal,
+  Save,
+  Scissors,
+  Search,
+  Send,
+  Settings,
+  Shield,
+  ShieldCheck,
+  ShieldOff,
+  Shirt,
+  Sparkles,
+  Star,
+  StickyNote,
+  Store,
+  ToggleRight,
+  Trash,
+  Trash2,
+  TriangleAlert,
+  TrendingUp,
+  Undo,
+  Unlink,
+  Upload,
+  User,
+  UserCheck,
+  UserPlus,
+  UserX,
+  Users,
+  UsersRound,
+  Utensils,
+  UtensilsCrossed,
+  Wallet,
+  Wine,
+  X,
+  XCircle,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+
+/**
+ * Maps Material Symbols icon names (kept for backwards-compat with
+ * existing call sites) to their Lucide React equivalents. Lucide ships
+ * tree-shakeable SVG icons — only the components imported above are
+ * bundled. Replaces the 1MB Material Symbols Outlined web font.
+ */
+const map: Record<string, LucideIcon> = {
+  account_balance_wallet: Wallet,
+  account_circle: CircleUserRound,
+  add: Plus,
+  add_photo_alternate: ImagePlus,
+  arrow_back: ArrowLeft,
+  arrow_forward: ArrowRight,
+  assignment: ClipboardList,
+  assignment_late: ClipboardX,
+  auto_awesome: Sparkles,
+  bolt: Zap,
+  brush: Brush,
+  cake: Cake,
+  calendar_month: CalendarDays,
+  calendar_today: Calendar,
+  call: Phone,
+  cancel: XCircle,
+  card_giftcard: Gift,
+  card_membership: BadgeCheck,
+  celebration: PartyPopper,
+  check: Check,
+  check_circle: CheckCircle2,
+  checklist: ListChecks,
+  checkroom: Shirt,
+  chevron_left: ChevronLeft,
+  chevron_right: ChevronRight,
+  church: Church,
+  circle: Circle,
+  close: X,
+  cloud_off: CloudOff,
+  cloud_upload: CloudUpload,
+  compress: Minimize2,
+  content_copy: Copy,
+  content_cut: Scissors,
+  credit_card_off: CreditCard,
+  crop_landscape: RectangleHorizontal,
+  currency_pound: PoundSterling,
+  dashboard: LayoutDashboard,
+  delete: Trash2,
+  delete_forever: Trash,
+  description: FileText,
+  diamond: Diamond,
+  dinner_dining: Utensils,
+  eco: Leaf,
+  done_all: CheckCheck,
+  download: Download,
+  edit: Pencil,
+  edit_calendar: CalendarClock,
+  error: CircleAlert,
+  event: CalendarDays,
+  event_busy: CalendarX,
+  event_seat: Armchair,
+  expand_more: ChevronDown,
+  family_restroom: Users,
+  favorite: Heart,
+  favorite_border: Heart,
+  feedback: MessageSquare,
+  flag: Flag,
+  flight: Plane,
+  group: Users,
+  group_add: UserPlus,
+  group_off: UserX,
+  groups: UsersRound,
+  heart_broken: HeartCrack,
+  help: CircleHelp,
+  home: Home,
+  hourglass_top: Hourglass,
+  how_to_reg: UserCheck,
+  inbox: Inbox,
+  info: Info,
+  language: Languages,
+  lightbulb: Lightbulb,
+  link: LinkIcon,
+  link_off: Unlink,
+  local_bar: Wine,
+  local_cafe: Coffee,
+  location_on: MapPin,
+  lock: Lock,
+  lock_reset: KeyRound,
+  logout: LogOut,
+  mail: Mail,
+  menu: MenuIcon,
+  more_vert: MoreVertical,
+  mosque: Landmark,
+  new_releases: Sparkles,
+  notifications: Bell,
+  notifications_none: Bell,
+  open_in_new: ExternalLink,
+  outdoor_grill: Flame,
+  palette: Palette,
+  payments: Wallet,
+  pending: Clock,
+  pending_actions: ClipboardClock,
+  person: User,
+  person_add: UserPlus,
+  photo_camera: Camera,
+  photo_library: Images,
+  pie_chart: PieChart,
+  play_arrow: Play,
+  priority_high: AlertTriangle,
+  progress_activity: Loader,
+  radio_button_unchecked: Circle,
+  rate_review: MessageSquareText,
+  restaurant: Utensils,
+  restaurant_menu: UtensilsCrossed,
+  rice_bowl: Utensils,
+  save: Save,
+  savings: PiggyBank,
+  schedule: Clock,
+  science: FlaskConical,
+  search: Search,
+  send: Send,
+  settings: Settings,
+  remove_moderator: ShieldOff,
+  shield: Shield,
+  shield_lock: Shield,
+  shield_person: ShieldCheck,
+  smart_toy: Bot,
+  spa: Flower2,
+  star: Star,
+  sticky_note_2: StickyNote,
+  storefront: Store,
+  swap_vert: ArrowDownUp,
+  table_restaurant: ConciergeBell,
+  tapas: Utensils,
+  task_alt: CheckCircle2,
+  temple_buddhist: Landmark,
+  timeline: Activity,
+  toggle_on: ToggleRight,
+  trending_up: TrendingUp,
+  undo: Undo,
+  upcoming: CalendarClock,
+  upload: Upload,
+  upload_file: FileUp,
+  verified: BadgeCheck,
+  view_module: LayoutGrid,
+  visibility: Eye,
+  visibility_off: EyeOff,
+  warning: TriangleAlert,
+  waving_hand: Hand,
+  wine_bar: Wine,
+  workspace_premium: Award,
+};
+
+interface IconProps {
+  name: string;
+  className?: string;
+  strokeWidth?: number;
+}
+
+/**
+ * Lucide stroke icons look "heavier" at large sizes than Material Symbols
+ * did, because Material Symbols had optical sizing baked into the variable
+ * font (the glyph stroke thinned out as size grew). We mimic that here:
+ * thin strokes for big decorative icons, fuller strokes for small UI icons.
+ *
+ * Override with the `strokeWidth` prop if needed.
+ */
+function inferStrokeWidth(className?: string): number {
+  if (!className) return 2;
+  if (/text-(5xl|6xl|7xl|8xl|9xl)\b/.test(className)) return 1.25;
+  if (/text-(3xl|4xl)\b/.test(className)) return 1.5;
+  if (/text-(xs|sm)\b/.test(className)) return 2.2;
+  return 1.85;
+}
+
+/**
+ * Drop-in replacement for `<Icon name="name" />`.
+ *
+ * Sizes itself to the surrounding font-size by default (1em width/height),
+ * so existing `text-xl`, `text-2xl`, `text-base` etc. classes still control size.
+ *
+ * Usage:
+ *   <Icon name="menu" className="text-xl" />
+ *   <Icon name={item.icon} className="text-2xl text-primary" />
+ */
+export default function Icon({ name, className, strokeWidth }: IconProps) {
+  const Cmp = map[name];
+  if (!Cmp) {
+    if (process.env.NODE_ENV !== "production") {
+      // eslint-disable-next-line no-console
+      console.warn(`[Icon] No Lucide mapping for "${name}"`);
+    }
+    return null;
+  }
+  const sw = strokeWidth ?? inferStrokeWidth(className);
+  return (
+    <Cmp
+      className={className}
+      width="1em"
+      height="1em"
+      strokeWidth={sw}
+      aria-hidden="true"
+      focusable={false}
+    />
+  );
+}
