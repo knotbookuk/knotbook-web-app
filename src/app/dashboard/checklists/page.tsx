@@ -296,6 +296,10 @@ export default function ChecklistsPage() {
       if (res.ok) {
         const newItem = await res.json();
         setItems((prev) => [...prev, newItem]);
+        if (!editingItem) {
+          setSelectedCategories([]);
+          setSelectedPriorities([]);
+        }
         closeModal();
       }
     } catch {

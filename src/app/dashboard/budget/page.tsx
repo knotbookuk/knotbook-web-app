@@ -78,16 +78,34 @@ const categoryIcons: Record<string, string> = {
   Photography: "photo_camera",
   Flowers: "local_florist",
   Entertainment: "music_note",
+  Music: "music_note",
   Catering: "restaurant",
   Attire: "checkroom",
+  Outfits: "checkroom",
   Decor: "palette",
+  Mehndi: "spa",
   Transport: "directions_car",
   Stationery: "mail",
   Gifts: "redeem",
+  "Gifts for Bride Family": "redeem",
+  "Gifts for Groom Family": "redeem",
+  Favours: "card_giftcard",
+  Cake: "cake",
+  "Hair & Makeup": "brush",
+  Beauty: "brush",
+  Honeymoon: "flight",
+  Rings: "diamond",
+  Jewellery: "diamond",
 };
 
 function getCategoryIcon(category: string): string {
-  return categoryIcons[category] || "receipt_long";
+  if (categoryIcons[category]) return categoryIcons[category];
+  // Loose match for free-text categories
+  const lower = category.toLowerCase();
+  for (const [key, icon] of Object.entries(categoryIcons)) {
+    if (lower.includes(key.toLowerCase())) return icon;
+  }
+  return "receipt_long";
 }
 
 /* ─── Donut Chart (SVG) ─── */

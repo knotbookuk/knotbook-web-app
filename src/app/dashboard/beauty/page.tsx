@@ -574,8 +574,16 @@ export default function BeautyPage() {
                     backgroundPosition: "center",
                   }}
                 />
-                {/* Overlay on hover */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-end justify-between p-2.5 opacity-0 group-hover:opacity-100">
+                {/* Always-visible delete on mobile (no hover available) */}
+                <button
+                  onClick={() => deleteInspiration(item.id)}
+                  aria-label="Delete inspiration"
+                  className="sm:hidden absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-on-surface-variant shadow-md active:scale-95 transition-transform cursor-pointer"
+                >
+                  <Icon name="delete" className="text-sm" />
+                </button>
+                {/* Hover overlay (desktop only) */}
+                <div className="hidden sm:flex absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all items-end justify-between p-2.5 opacity-0 group-hover:opacity-100">
                   {item.caption && (
                     <span className="text-white text-xs font-label truncate max-w-[70%]">
                       {item.caption}
@@ -583,6 +591,7 @@ export default function BeautyPage() {
                   )}
                   <button
                     onClick={() => deleteInspiration(item.id)}
+                    aria-label="Delete inspiration"
                     className="w-7 h-7 rounded-full bg-white/80 flex items-center justify-center text-on-surface-variant hover:text-error transition-colors shrink-0 cursor-pointer"
                   >
                     <Icon name="delete" className="text-sm" />

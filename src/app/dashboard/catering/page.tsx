@@ -330,6 +330,12 @@ export default function CateringPage() {
           body: JSON.stringify(payload),
         });
         if (res.ok) {
+          // Reset active filters so the user always sees their newly added item.
+          if (modalType === "food") setDietFilter("all");
+          if (modalType === "beverage") {
+            setAlcoholFilter("all");
+            setVendorFilter("all");
+          }
           fetchData();
           closeModal();
         }
@@ -423,7 +429,11 @@ export default function CateringPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (res.ok) fetchData();
+      if (res.ok) {
+        setAlcoholFilter("all");
+        setVendorFilter("all");
+        fetchData();
+      }
     } catch {
       // silently fail
     }

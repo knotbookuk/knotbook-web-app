@@ -209,12 +209,14 @@ export default function OutfitsPage() {
     try {
       const url = editingItem ? `/api/outfits/${editingItem.id}` : "/api/outfits";
       const method = editingItem ? "PATCH" : "POST";
+      const isAdd = !editingItem;
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (res.ok) {
+        if (isAdd) setActiveTab("All");
         fetchItems();
         setModalOpen(false);
         setFormData(defaultFormData);

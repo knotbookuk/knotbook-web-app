@@ -119,6 +119,17 @@ export default function AllergiesPage() {
   const totalFlags = Object.values(dietTypeCounts).reduce((a, b) => a + b, 0);
   const allergyCount = guests.filter((g) => g.allergies).length;
 
+  const dietTypeIcons: Record<string, string> = {
+    Vegetarian: "eco",
+    Vegan: "spa",
+    "Gluten-Free": "grain",
+    "Nut Allergy": "warning",
+    Halal: "mosque",
+    Kosher: "temple_buddhist",
+    "Dairy-Free": "local_cafe",
+    Pescatarian: "restaurant",
+  };
+
   const stats = [
     { label: "Total Guests", value: guests.length, icon: "group" },
     { label: "Total Flags", value: totalFlags, icon: "flag" },
@@ -128,7 +139,7 @@ export default function AllergiesPage() {
       .map(([type, count]) => ({
         label: type,
         value: count,
-        icon: type === "Vegetarian" ? "eco" : type === "Vegan" ? "spa" : "grain",
+        icon: dietTypeIcons[type] || "restaurant",
       })),
   ];
 

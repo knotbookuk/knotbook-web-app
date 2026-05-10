@@ -781,6 +781,7 @@ export default function GuestsPage() {
 
   const handleSubmitGuest = async (formData: GuestFormData) => {
     setIsSubmitting(true);
+    const isAdd = !editingGuest;
     try {
       const url = editingGuest
         ? `/api/guests/${editingGuest.id}`
@@ -809,6 +810,10 @@ export default function GuestsPage() {
         throw new Error(data?.error || "Failed to save guest");
       }
 
+      if (isAdd) {
+        setActiveTab("All");
+        setFamilySideFilter("");
+      }
       handleCloseModal();
       showToast(
         editingGuest
